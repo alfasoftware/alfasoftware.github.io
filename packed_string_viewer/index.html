@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+	<!--
+	
+	MIT License
+
+	Copyright (c) 2018 Alfa Financial Software
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in all
+	copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+	SOFTWARE.
+	
+	-->
+
+	<head>
+		<title>Packed String Visualiser</title>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.5.3/clipboard.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
+		
+		<style>
+		* {
+			font-family: monospace;
+		}
+
+		.table { display: table; margin-bottom:1em; }
+		.row { display: table-row; }
+		.cell { display: table-cell; padding-right:3px; }
+		
+		.error { background-color: #f7afaf}
+		
+		#alfaLogo {
+			margin-right:0.5em;
+		}
+		
+		#copyLink {
+			margin-left:30em;
+		}
+		
+		.divider {
+			width: 51em;
+			margin-top:2em;
+			border-top:1px solid black;
+		}
+	
+		#breakdownHeader {
+			margin-top:1em;
+		}
+		
+		#copyBreakdown {
+			margin-left:26em;
+		}
+		
+		#contact {
+			margin-top:2em;
+		}
+		
+		#notes {
+			margin-top:2em;
+			font-style: italic;
+		}
+		
+		#copyright {
+			margin-top:2em;
+		}
+		</style>
+	</head>
+	
+	<body>
+	  <h1 id="noJs">Please view in an external browser with JS enabled</h1>
+	
+	  <div id="jsRequired" style="display:none">
+	
+		<h2>
+			<img id="alfaLogo" src="data:image/png;base64,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" />
+			<span>Packed String Visualiser</span>
+		</h2>
+		
+		<div class="divider"></div>
+		
+		<h2>Input<button id="copyLink">Copy link to clipboard</button></h2>
+		<textarea id="input" cols="88" rows="5" placeholder="<<'ctrl + v' or type a single packed string line here>>"></textarea>		
+		<br />
+		<input type="checkbox" id="obscureSensitiveData" checked>Obscure sensitive information</input>
+		
+		<div id="output" style="display:none">
+		
+			<div class="divider" id="breakdownDivider"></div>
+			
+			<h2 id="breakdownHeader">Breakdown <button id="copyBreakdown">Copy table to clipboard</button></h2>
+			<div id="breakdowns" class="table">
+			</div>
+			<input type="checkbox" id="surroundValuesWithQuotes">Surround values with quotes</input>
+		
+		</div>
+		
+		<div class="divider"></div>
+		
+		<h2>Parsing Format</h2>
+		<textarea id="parsingFormat" cols="88" rows="5" placeholder="<<'ctrl + v' or type a valid JSON string parsing format>>"></textarea>		
+		<br />
+		
+		<div class="divider"></div>
+		
+		<div id="contact">For more information, please see <a href="https://github.com/alfasoftware/alfasoftware.github.io/packed_string_visualiser">https://github.com/alfasoftware/alfasoftware.github.io/packed_string_visualiser</a></div>
+		
+		<div id="notes">Note: Copy buttons only supported on: Chrome 42+, Firefox 41+, IE 9+, Opera 29+</div>
+		
+		<div id="copyright">&copy; 2018 Alfa Financial Software</div>
+		
+	  </div>
+	</body>
+		
+	<script>
+	
+	/*
+	 * Once the document is ready, start doing JS things...
+	 */
+	$(document).ready(function() {
+	
+		// Hide the no JS message and show everything else
+		$('#noJs').hide();
+		$('#jsRequired').show();
+	
+		// Bind to changes on the textarea
+		$("textarea").on('change keyup paste', null, function() {
+			renderBreakdown(false);
+		});
+		
+		//Bind to changes of the 'Obscure sensitive information' checkbox
+		$("#obscureSensitiveData").change(function(){
+			renderBreakdown(false);
+		});
+		
+		//Bind to changes of the 'Surround values with quotes' checkbox
+		$("#surroundValuesWithQuotes").change(function(){
+			renderBreakdown(false);
+		});
+		
+		// Perform initial render
+		renderBreakdown(true);
+	});
+	</script>
+		
+	<script>
+		/*
+		 * Main function that does the work of displaying everything when the input in the text area changes.
+		 *
+		 * @param shouldRenderFromQueryParameters - boolean - whether or not to render input from URL query parameters, if present
+		 */
+		function renderBreakdown(shouldRenderFromQueryParameters) {
+		
+			console.log("\n### Start render cycle ###");
+		
+			clearExistingBreakdown();
+			
+			var input = getInput(shouldRenderFromQueryParameters);
+			var parsingFormat = getParsingFormat(shouldRenderFromQueryParameters);
+			
+			// If no input or parsing format - hide output and return (nothing to do here)
+			if(input.length == 0 || !parsingFormat) {
+				$('#output').hide();
+				return;
+			}
+		
+			$('#output').show();
+			
+			// Parameter object that is passed 'through' the parseSegment method for each segment (and updated on the way)
+			// I.e. this object forms the input to parseSegment and also comes back as the output from parseSegment, such that it can be passed in again for a different segment
+			var nextParseInput = {
+				input: input,
+				absoluteCharacterCount: 1,
+				inputForLinking: "",
+				copyToPipedTableTextVersionOfBreakdown: "",
+				obscureSensitiveData: $('#obscureSensitiveData').prop('checked'),
+				surroundValuesWithQuotes: $('#surroundValuesWithQuotes').prop('checked')
+			}
+			
+			// Always parse the required segment
+			console.log("\n## Parsing Required Segment ##");
+			nextParseInput = parseSegment(parsingFormat.r, nextParseInput);
+			console.log("Unhandled from required segment: '" + nextParseInput.input + "'");
+			
+			// Attempt to parse the 'optional' segments - continue doing so while the input keeps reducing...
+			console.log("\n## Parsing Optional Segments ##");
+			do {
+				var inputBeforeParse = nextParseInput.input;
+			
+				console.log("Remaining unhandled input: '" + nextParseInput.input + "'");
+				
+				for (var currentOptionalSegmentIndex = 0; currentOptionalSegmentIndex < parsingFormat.o.length; currentOptionalSegmentIndex++) {
+				
+					var currentOptionalSegment = parsingFormat.o[currentOptionalSegmentIndex];
+				
+					if(nextParseInput.input.startsWith(currentOptionalSegment.i)) {
+						nextParseInput = parseSegment(currentOptionalSegment, nextParseInput);
+						console.log("Unhandled from " + currentOptionalSegment.title + " segment: " + nextParseInput.input);
+					}
+				}
+				
+			} while(inputBeforeParse != nextParseInput.input);
+			
+			// Handle any final unhandled content that remains
+			console.log("\n## Parsing Unhandled Content ##");
+			if(nextParseInput.input.length != 0) {
+			
+				var unhandledLength = input.length - nextParseInput.absoluteCharacterCount + 1;
+				
+				var unhandledSegment = {
+					t : "UNKNOWN / UNHANDLED",
+					l : unhandledLength,
+					f : [
+						{s:1, e: unhandledLength, l:"???", p: false}
+					]
+				}
+				
+				nextParseInput = parseSegment(unhandledSegment, nextParseInput);
+			}
+			
+			/*
+			 * Tee-up the 'Copy breakdown' button
+			 */
+			new Clipboard('#copyBreakdown', {
+				text: function(trigger) {
+					return nextParseInput.copyToPipedTableTextVersionOfBreakdown;
+				}
+			});
+			
+			/*
+			 * Tee-up the 'Copy link' button
+			 * (Copies the URL of this page with a '?input=<base 64 encoded content of input text box>' suffix)
+			 */
+			new Clipboard('#copyLink', {
+				text: function(trigger) {
+				
+					var link = location.protocol + '//' + location.host + location.pathname + '?';
+				
+					if(nextParseInput.inputForLinking) {
+						link += 'input=' + btoa(nextParseInput.inputForLinking) + "&";
+					}
+					
+					if(parsingFormat) {
+						link += 'parsingFormat=' + LZString.compressToEncodedURIComponent(JSON.stringify(parsingFormat));
+					}
+				
+					return link;
+				}
+			});
+		}
+		
+		
+		function clearExistingBreakdown() {
+			$('#breakdowns').html("");
+		}
+		
+		
+		/**
+		 * Gets the input to parse.
+		 *
+		 * @param renderFromQueryParameters - whether to check the query parameters for the input
+		 */
+		function getInput(renderFromQueryParameters) {
+			console.log("\n## Determining Input ##");
+		
+			var input = $('#input').val();
+			
+			if(input) {
+				console.log("Using input from textArea");
+			}
+			// If no input
+			else if(renderFromQueryParameters) {
+				/*
+				 * See if there is base64 encoded input in the query string
+				 */ 
+				var base64Input = getQueryVariable("input");
+				 
+				if(base64Input) {
+					console.log("Query parameter Base64 encoded input: %s", base64Input);
+					
+					var decodedInput = atob(base64Input);
+					console.log("Query parameter decoded input: %s", decodedInput);
+					
+					input = decodedInput;
+				}
+			}
+			
+			$('#input').val(input);
+		
+			// Ensure white space is correctly represented / preserved
+			input = input.replace(/ /g, '\u00a0');
+		
+			return input;
+		}
+		
+		
+		/**
+		 * Gets the parsing format to use, or returns the example format by default.
+		 *
+		 * @param renderFromQueryParameters - whether to check the query parameters for the parsing format
+		 */
+		function getParsingFormat(renderFromQueryParameters) {
+			console.log("\n## Determining Parsing Format ##");
+		
+			var inputParsingFormat = $('#parsingFormat').val();
+			
+			if(inputParsingFormat) {
+				console.log("Using parsingFormat from textArea");
+			}
+			// If no parsingFormat in local input field
+			else if(renderFromQueryParameters) {
+				/*
+				 * See if there is base64 encoded parsing format in the query string
+				 */
+				var base64ParsingFormat = getQueryVariable("parsingFormat");
+				
+				if(base64ParsingFormat) {
+					console.log("Query parameter Base64 encoded parsing format: %s", base64ParsingFormat);
+					
+					var decodedParsingFormat = LZString.decompressFromEncodedURIComponent(base64ParsingFormat);
+					console.log("Query parameter decoded parsing format: %s", decodedParsingFormat);
+					
+					inputParsingFormat = decodedParsingFormat;
+				}
+			}
+			
+			if(inputParsingFormat) {
+				$('#parsingFormat').val(inputParsingFormat);
+			
+				try {
+					var jsonParsingFormat = JSON.parse(inputParsingFormat);
+					console.log("Using JSON parsing format:", jsonParsingFormat);
+					$('#parsingFormat').removeClass("error");
+					return jsonParsingFormat;
+				}
+				catch(err) {				
+					console.error("JSON parsing error", err);
+					
+					$('#parsingFormat').addClass("error");
+				}
+			}
+		}
+		
+		
+		/**
+		 * Returns the value of the URL query parameter with the given variableName (if one exists)
+		 */
+		function getQueryVariable(variableName) {
+		
+			var query = window.location.search.substring(1);
+			
+			var vars = query.split('&');
+			
+			for (var i = 0; i < vars.length; i++) {
+				var pair = vars[i].split('=');
+				
+				if (decodeURIComponent(pair[0]) == variableName) {
+					return decodeURIComponent(pair[1]);
+				}
+			}
+			
+			console.log("Query parameter '%s' not found", variableName);
+		}
+		
+		
+		/**
+		 * Parses the given input against the given segment, adding the appropriate breakdowns to the UI.
+		 *
+		 * Note: The input object is then updated, suitable for passing back into this method to parse against
+		 * a different segment.
+		 *
+		 * @param segment - the segment definition to parse against.
+		 * @param parseInput - object containing the input to parse.
+		 * @return the given input object, 
+		 */
+		function parseSegment(segment, parseInput) {
+			
+			var initialCharacterCount = parseInput.absoluteCharacterCount;
+			
+			// Add a spacer row before this segment breakdown
+			$('#breakdowns').append('<div class="row" style="background-color: white; color: white">&nbsp;</div>');
+			
+			//Add breadkdown headers
+			var htmlForBreakdown = '<div class="row" style="background-color: black; color: white">';
+				htmlForBreakdown += '<div class="cell">||' + segment.t + ' Field</div>';
+				htmlForBreakdown += '<div class="cell">||Position</div>';
+				htmlForBreakdown += '<div class="cell">||Value</div>';
+				htmlForBreakdown += '<div class="cell">||</div>';
+			htmlForBreakdown += '</div>';
+			$('#breakdowns').append(htmlForBreakdown);
+			parseInput.copyToPipedTableTextVersionOfBreakdown += '||' + segment.t + ' Field||Position||Value||\n';
+			
+			// Loop through each field on the given segment and parse against the given input
+			for (var currentFieldIndex = 0; currentFieldIndex < segment.f.length; currentFieldIndex++) {
+			
+				var currentField = segment.f[currentFieldIndex];
+
+				var fieldContent = parseInput.input.substring(currentField.s - 1, currentField.e);
+				
+				if(parseInput.obscureSensitiveData && currentField.p) {
+					fieldContent = fieldContent.replace(/([^0\s])/g, 'X');
+				}
+				
+				// Add the contents of the field to representation used to build the 'Copy link to clipboard' version
+				// Note: we do that here so that any sensitive data has been obfuscated
+				parseInput.inputForLinking += fieldContent;
+				
+				/*
+				 * Create the breakdown of fields
+ 				 * Note: the use of pipes allows neat copying into JIRA
+				 */				 
+				 
+				var absoluteFieldStart = initialCharacterCount - 1 + currentField.s;
+				var absoluteFieldEnd = initialCharacterCount - 1 + currentField.e;
+				 
+				var htmlForBreakdown = '<div class="row"'
+				
+				// Candy stripe the rows
+				if(currentFieldIndex % 2 == 0) {
+					htmlForBreakdown += ' style="background-color: rgba(229, 229, 229, 0.6);"';
+				}
+				
+				htmlForBreakdown += '>';
+				
+				htmlForBreakdown += '<div class="cell">|' + currentField.l + '</div>';
+				htmlForBreakdown += '<div class="cell">|' + absoluteFieldStart + ' - ' + absoluteFieldEnd + '</div>';
+				htmlForBreakdown += '<div class="cell">|';
+				
+				if(parseInput.surroundValuesWithQuotes) {
+					htmlForBreakdown += "'";
+				}
+				
+				htmlForBreakdown += fieldContent;
+				
+				if(parseInput.surroundValuesWithQuotes) {
+					htmlForBreakdown += "'";
+				}
+				
+				htmlForBreakdown += '</div>';
+				htmlForBreakdown += '<div class="cell">|</div>';
+				htmlForBreakdown += '</div>';
+				
+				$('#breakdowns').append(htmlForBreakdown);
+				
+				/*
+				 * Build 'copy-to-piped-table' text version
+				 */
+				parseInput.copyToPipedTableTextVersionOfBreakdown += '|' + currentField.l + '|' + absoluteFieldStart + ' - ' + absoluteFieldEnd + '|';
+
+				if(parseInput.surroundValuesWithQuotes) {
+					parseInput.copyToPipedTableTextVersionOfBreakdown += "'";
+				}
+				
+				parseInput.copyToPipedTableTextVersionOfBreakdown += fieldContent;
+				
+				if(parseInput.surroundValuesWithQuotes) {
+					parseInput.copyToPipedTableTextVersionOfBreakdown += "'";
+				}
+				
+				parseInput.copyToPipedTableTextVersionOfBreakdown += '|\n';
+			}
+		
+			//Return the updated parseInput for the next parse call
+			parseInput.input = parseInput.input.substring(segment.l);
+			parseInput.absoluteCharacterCount = initialCharacterCount + segment.l;			
+			return parseInput;
+		}
+	</script>
+</html>
